@@ -1,0 +1,38 @@
+/*
+** Author: Jack "Scarso" Farhall
+** Description: 
+*/
+#include "..\..\script_macros.hpp"
+scopeName "fn_giveItem";
+
+_this params [
+	["_unit", objNull, [objNull]],
+	["_item", "", [""]],
+	["_data", 1, [0, "", []]]
+];
+
+private _itemCfg = missionConfigFile >> "CfgVirtualItems" >> _item;
+
+if (isNull _unit || { !(isClass _itemCfg) }) exitWith { false };
+
+private _count = _data;
+if !(_data isEqualType 0) then {
+	_count = 1;
+};
+
+if (_count <= 0) exitWith { false };
+
+private _displayName = getText (_itemCfg >> "displayName");
+
+if ([getNumber (_itemCfg >> "Settings" >> "isScripted")] call ULP_fnc_bool) then {
+	_displayName = format [_displayName, _data];
+};
+
+if !([_item, _data, true] call ULP_fnc_handleItem) exitWith {
+	[format ["Nie masz %1 %2 aby dać %3", [_count] call ULP_fnc_numberText, _displayName, [_unit, true] call ULP_fnc_getName]] call fini_fnc_noty;
+	false
+};
+
+[format ["Dałeś %1 %2 %3", [_unit, true] call ULP_fnc_getName, [_count] call ULP_fnc_numberText, _displayName]] call fini_fnc_noty;
+[player, _item, _data] remoteExecCall ["ULP_fnc_recieveItem", _unit];
+true

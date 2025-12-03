@@ -1,0 +1,170 @@
+overviewText = "Customowy tryb gry RPG, bazowany na nowoczesnym frameworku, przerobiony na potrzeby StanLakeside.";
+disableRandomization[]= { "All" };
+
+// Should change to something unique to your server
+missionGroup = "StanLakesideAltis";
+
+class CfgCommands {
+    allowedHTMLLoadURIs[] += {
+        "https://fini.dev/*"
+    };
+};
+
+joinUnassigned = 1;
+saving = 0;
+unsafeCVL = 1;
+enableDebugConsole[] = { "76561198022957865","76561199201441233","76561198124966741","76561198180954622" };
+
+onPauseScript[]={ "ULP_fnc_onPause" };
+disableChannels[] = {{0,true,true}, {1,true,true}, {2,true,true}, {6,false,true}};
+
+class Header {
+	gameType = RPG;
+	minPlayers = 1;
+	maxPlayers = 130;
+};
+
+class CfgWorlds {
+	class Any {
+		author = "StanLakeside & MantleNetwork | Dev Team";
+		description = "StanLakeside.pl | Altis";
+		pictureMap = "";
+		pictureShot = "data\load.paa";
+		loadingTexts[] = {
+        	"Legendy miejskie mówią, że gdzieś na wyspie grasuje szejk arabski, który porywa ludzi spod szpitala, grożąc przy tym że rozkwasi łeb.",
+        	"Gdzieś na wyspie jest zakopana tajna beczka Jim'a Subway'a",
+        	"Legendy mówią że Jasiu Calais wraz z wielkim Dorianem Lychem powrócą.",
+        	"Według mieszkańców, na północy wyspy żyją dzikie żółwie, których nikt jeszcze nie oswoił.",
+			"Żółwie błotne z lokalnych ławic są istnym rarytasem dla tutejszych kłusowników.",
+        	"Legenda mówi o starej kopalni złota ukrytej w centralnej części Altis.",
+        	"Czasami na wyspie pojawia się zrzut który można zebrać.",
+        	"Gdzieś na Altis jest zatopiony statek.",
+        	"Czasami na rynku w Kavali można spotkać legendarnego już rafe12.",
+        	"Mateuszkuuuuuuu...",
+        	"Legendy mówią że komendant przepił stanowisko w lokalnej karczmie w Pyrgros",
+        	"Map created by DOBRO xD",
+        	"valdor łeb",
+        	"Czasami na rynku w Kavali chodzi pewien sprzedawca sprzedający system KamilOS",
+            "Nigdy nie zadzieraj z Jim Subwayem (serio)",
+            "Policja nam dokucza"
+		};
+	};
+};
+
+#include "UI\Includes.hpp"
+#include "UI\RscTitles.hpp"
+#include "UI\AH_Dialog.hpp"
+
+#include "cau\userinputmenus\systems\_macros.inc"
+#include "cau\userinputmenus\systems\_defines.inc"
+
+#include "cau\userinputmenus\controls.cpp"
+#include "cau\userinputmenus\systems\displayColorPicker.cpp"
+#include "cau\userinputmenus\systems\displayGuiMessage.cpp"
+#include "cau\userinputmenus\systems\displayListbox.cpp"
+#include "cau\userinputmenus\systems\displayListboxMulti.cpp"
+#include "cau\userinputmenus\systems\displayProgressBar.cpp"
+#include "cau\userinputmenus\systems\displaySlider.cpp"
+#include "cau\userinputmenus\systems\displayText.cpp"
+#include "cau\userinputmenus\systems\displayTextMulti.cpp"
+#include "maverick\maverick_master.cpp"
+#include "maverick\maverick_remoteExec_master.cpp"
+
+#include "CfgDebriefing.hpp"
+//#include "CfgDisabledCommands.hpp"
+#include "CfgFunctions.hpp"
+#include "CfgNotifications.hpp"
+#include "CfgRemoteExec.hpp"
+#include "CfgSFX.hpp"
+#include "CfgSounds.hpp"
+
+#define true 1
+#define false 0
+
+class CfgEmoji {
+	// Add the following line inside class CfgEmoji
+	#include "cau\extendedchat\emojipack\config.cpp"
+};
+
+#include "Configuration\CfgSettings.hpp"
+#include "Functions\Admin\CfgAdmin.hpp"
+#include "Functions\Archaeology\CfgArchaeology.hpp"
+#include "Functions\Bases\CfgBases.hpp"
+#include "Functions\Camera\CfgCameras.hpp"
+#include "Functions\Capture\CfgCapture.hpp"
+#include "Functions\Cartels\CfgCartels.hpp"
+#include "Functions\Chat\CfgChat.hpp"
+#include "Functions\Clothing\CfgClothing.hpp"
+#include "Functions\Crafting\CfgBlueprints.hpp"
+#include "Functions\Crimes\CfgCrimes.hpp"
+#include "Functions\Faction\CfgFactions.hpp"
+#include "Functions\Gathering\CfgGathering.hpp"
+#include "Functions\Goals\CfgGoals.hpp"
+#include "Functions\Government\CfgGovernment.hpp"
+#include "Functions\Group\CfgGroups.hpp"
+#include "Functions\Housing\CfgHousing.hpp"
+#include "Functions\HUD\CfgStatusIcons.hpp"
+#include "Functions\Indicators\CfgIndicators.hpp"
+#include "Functions\Interactions\CfgInteractions.hpp"
+#include "Functions\Items\CfgItems.hpp"
+#include "Functions\Items\CfgVirtualItems.hpp"
+#include "Functions\Leveling\CfgProgression.hpp"
+#include "Functions\Licenses\CfgLicenses.hpp"
+#include "Functions\Licenses\CfgLicenseStores.hpp"
+#include "Functions\LootTable\CfgLoot.hpp"
+#include "Functions\Map\CfgMaps.hpp"
+#include "Functions\Medical\CfgMedical.hpp"
+#include "Functions\Messaging\CfgMessages.hpp"
+#include "Functions\Missions\CfgMissions.hpp"
+#include "Functions\Moves\CfgMoves.hpp"
+#include "Functions\Options\CfgOptions.hpp"
+#include "Functions\Perks\CfgPerks.hpp"
+#include "Functions\Placeables\CfgPlaceables.hpp"
+#include "Functions\PlayerTags\CfgTags.hpp"
+#include "Functions\PNC\CfgWarrants.hpp"
+#include "Functions\Prison\CfgPrison.hpp"
+#include "Functions\Processing\CfgProcessing.hpp"
+#include "Functions\Processing\CfgProcessingStores.hpp"
+#include "Functions\RandomEvents\CfgRandomEvents.hpp"
+#include "Functions\Reputation\CfgReputation.hpp"
+#include "Functions\Rewards\CfgRewards.hpp"
+#include "Functions\Robberies\CfgRobberies.hpp"
+#include "Functions\Spawn\CfgSpawns.hpp"
+#include "Functions\Stores\CfgStores.hpp"
+#include "Functions\Tablet\CfgTablet.hpp"
+#include "Functions\Titles\CfgTitles.hpp"
+#include "Functions\Vehicle\CfgVehicles.hpp"
+#include "Functions\VehicleStore\CfgVehicleStores.hpp"
+#include "fini\Config.hpp"
+
+// Enables the extended chat mod
+CAU_xChat_enabled = 1; // 0 - disabled, 1 - enabled (default)
+
+// Enables the use of emojis in chat. Automatically disabled if no emojis are found on the client
+CAU_xChat_emojis = 1; // 0 - disabled, 1 - enabled (default)
+
+// Toggle "<Name> connected" logs when a player loads into mission
+CAU_xChat_connectMessages = 1; // 0 - disabled, 1 - enabled (default)
+
+// Toggle "<Name> disconnected" logs when a player leaves the mission
+CAU_xChat_disconnectMessages = 1; // 0 - disabled, 1 - enabled (default)
+
+// Toggle "<Name1> was killed by <Name2>" and "<Name> was killed" when a player dies
+CAU_xChat_deathMessages = 0; // 0 - disabled, 1 - enabled (default)
+
+// Enables mentioning groups
+CAU_xChat_mentionGroups = 1; // 0 - disabled, 1 - enabled (groups of player's side, default), 2 - enabled (all groups)
+
+//Enables whisper command. Allows sending private chat messages to other players, groups and roles
+CAU_xChat_whisperCommand = 0; // 0 - disabled, 1 - enabled (default)
+
+// System logs printed to chat when the player loads into the mission
+CAU_xChat_MOTD[]={};
+
+
+
+class CfgServer {
+    DatabaseName = "altislife";
+    DebugMode = 0;
+    HeadlessSupport = 0;
+};

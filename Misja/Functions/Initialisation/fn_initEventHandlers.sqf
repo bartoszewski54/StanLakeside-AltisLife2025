@@ -1,0 +1,178 @@
+/*
+** Author: Jack "Scarso" Farhall
+** Description: 
+*/
+scopeName "fn_initEventHandlers";
+
+inGameUISetEventHandler["PrevAction", "_this call ULP_fnc_onPrevAction"];
+inGameUISetEventHandler["Action", "_this call ULP_fnc_onAction"];
+inGameUISetEventHandler["NextAction", "_this call ULP_fnc_onNextAction"];
+
+player addEventHandler ["Fired", { _this call ULP_fnc_onFired }];
+player addEventHandler ["Reloaded", { _this call ULP_fnc_onReloaded }];
+player addEventHandler ["GetInMan", { _this call ULP_fnc_onGetIn }];
+player addEventHandler ["GetOutMan", { _this call ULP_fnc_onGetOut }];
+player addEventHandler ["Take", { _this call ULP_fnc_onTake }];
+player addEventHandler ["Put", { _this call ULP_fnc_onPut }];
+player addEventHandler ["InventoryOpened", { _this call ULP_fnc_InventoryOpened }];
+player addEventHandler ["InventoryClosed", { _this call ULP_fnc_InventoryClosed }];
+
+["KeysGiven", {
+	_this params [
+		["_vehicle", objNull, [objNull]],
+		["_giver", objNull, [objNull]]
+	];
+
+	if (isNull _vehicle) exitWith {};
+
+	if (((ULP_Keys pushBackUnique _vehicle) > -1) && { !(isNull _giver) }) then {
+		[format ["<t color='#B92DE0'>%1</t> dał ci klucze do <t color='#B92DE0'>%2</t>...", name _giver, ([typeOf _vehicle] call ULP_fnc_vehicleCfg) param [3, "something"]]] call fini_fnc_noty;
+	};
+}] call ULP_fnc_addEventHandler;
+
+["HouseAdded", {
+	_this params [
+		["_house", objNull, [objNull]]
+	];
+
+	ULP_Houses pushBackUnique _house;
+	
+	private _name = _house getVariable ["building_name", ""];
+	
+	private _marker = createMarkerLocal [format["house_%1", _house call BIS_fnc_netId], position _house];
+	_marker setMarkerTypeLocal "loc_Lighthouse";
+	_marker setMarkerColorLocal (["ColorIndependent", "colorBLUFOR"] select ([_house, player, false] call ULP_fnc_isHouseOwner));
+
+	if !(_name isEqualTo "") then {
+		_marker setMarkerTextLocal _name;
+	};
+
+	_house setVariable ["building_marker", _marker];
+}] call ULP_fnc_addEventHandler;
+
+["HouseRemoved", {
+	_this params [
+		["_house", objNull, [objNull]]
+	];
+
+	if (_house in ULP_Houses) then { ULP_Houses deleteAt (ULP_Houses find _house); };
+	
+	private _marker = _house getVariable ["building_marker", ""];
+	if !(_marker isEqualTo "") then {
+		deleteMarkerLocal _marker;
+	};
+}] call ULP_fnc_addEventHandler;
+
+["HouseRenamed", {
+	_this params [
+		["_house", objNull, [objNull]]
+	];
+
+	private _marker = _house getVariable ["building_marker", ""];
+	if !(_marker isEqualTo "") then {
+		private _name = _house getVariable ["building_name", ""];
+
+		if !(_name isEqualTo (markerText _marker)) then {
+			_marker setMarkerTextLocal _name;
+		};
+	};
+}] call ULP_fnc_addEventHandler;
+
+// Settings Events...
+["OptionChanged", {
+	_this params [
+		"_option", "_category", "_newSetting", "_lastSetting"
+	];
+
+	switch (format["%1_%2", _category, _option]) do {
+		case "General_NightLight": { if (hasInterface && { !(isNil "ULP_NightLight") }) then { ULP_NightLight setLightBrightness _newSetting; }; };
+		case "HUD_SideChat": { 1 enableChannel ([_newSetting] call ULP_fnc_bool); };
+		case "HUD_EnableHUD": {
+			if (_newSetting isEqualTo 1) then {
+				[] call ULP_UI_fnc_openHUD;
+			} else {
+				[(["RscHUD"] call ULP_UI_fnc_getLayer)] call ULP_UI_fnc_closeHUD;
+			};
+		};
+		case "HUD_EnableXPBar": { [(_newSetting isEqualTo 1)] call ULP_UI_fnc_onXPUpdateHud; };
+		case "HUD_EnablePlayerTags": { [(_newSetting isEqualTo 1)] call ULP_fnc_playerTags };
+		case "Indicators_EnableIndicators": { [(_newSetting isEqualTo 1)] call ULP_fnc_groupIndicators };
+		case "Audio_EffectsFade": { if (ULP_FadeSound) then { 0 fadeSound _newSetting; }; };
+		case "Audio_MusicFade": { if (ULP_FadeSound) then { 0 fadeMusic _newSetting; }; };
+		case "Audio_EnableAmbientSounds": { enableEnvironment [true, [_newSetting] call ULP_fnc_bool]; };
+		case "ViewDistance_FootViewDistance";
+		case "ViewDistance_LandViewDistance";
+		case "ViewDistance_AirViewDistance": { [] call ULP_fnc_setViewDistance; };
+	};
+}] call ULP_fnc_addEventHandler;
+
+if ([player, ["Police", "Hato"]] call ULP_fnc_isFaction) then {
+	["ClampFinePaid", {
+		_this params [
+			["_payer", "", [""]],
+			["_vehicle", objNull, [objNull]],
+			["_fine", 1, [0]]
+		];
+
+		private _cut = round (_fine / 2);
+
+		if ([_cut, true, format["Mandat - Pojazd"]] call ULP_fnc_addMoney) then {
+			[
+				format [
+					"<t color='#B92DE0'>%1</t> zapłacił mandat za <t color='#B92DE0'>%2</t> na kwotę <t color='#B92DE0'>%3%4</t> a ty otrzymałeś z tego <t color='#B92DE0'>%3%5</t> jako nagrodę...",
+					_payer,
+					([typeOf _vehicle] call ULP_fnc_vehicleCfg) param [3, ""],
+					"$", [_fine] call ULP_fnc_numberText, [_cut] call ULP_fnc_numberText
+				]
+			] call fini_fnc_noty;
+		};
+	}] call ULP_fnc_addEventHandler;
+};
+
+["Blindfold", {
+	_this params [
+		["_unit", objNull, [objNull]]
+	];
+
+	if (isNull _unit) exitWith {};
+	
+	if (player getVariable ["blindfold", false]) then {
+		cutText ["","BLACK OUT"];
+  		[format ["<t color='#B92DE0'>%1</t> założył Ci opaskę na oczy...", [_unit, true] call ULP_fnc_getName]] call fini_fnc_noty;
+        ["Blindfold"] call ULP_fnc_achieve;
+	} else {
+		cutText ["","BLACK IN"];
+  		[format ["<t color='#B92DE0'>%1</t> usunął opaskę na oczy...", [_unit, true] call ULP_fnc_getName]] call fini_fnc_noty;
+	};
+}] call ULP_fnc_addEventHandler;
+
+
+["CommunicationsSeized", {
+	_this params [
+		["_unit", objNull, [objNull]]
+	];
+
+	if (isNull _unit) exitWith {};
+
+	if (_unit isEqualTo player) then {
+		["Wyłączyłeś możliwość chatowania. <t color='#B92DE0'>Nie możesz już rozmawiać poza kanałem bezpośrednim/pojazdu!</t>"] call fini_fnc_noty;
+	} else {
+		[format ["<t color='#B92DE0'>%1</t> zniszczył wyłączył ci chat <t color='#B92DE0'>Nie możesz już rozmawiać poza kanałem bezpośrednim/pojazdu!</t>", [_unit] call ULP_fnc_getName]] call fini_fnc_noty;
+	};
+}] call ULP_fnc_addEventHandler;
+
+["EnteredRedzone", {
+	["<t align='center'>Wszedłeś na <t color='#cc0001'>strefe gangów!</t>(RDM dozwolony)</t>"] call ULP_UI_fnc_zoneText;
+}] call ULP_fnc_addEventHandler;
+
+["LeftRedzone", {
+	["<t align='center'>Wyszedłeś z <t color='#cc0001'>strefy gangów! </t>(RDM zakazany)</t>"] call ULP_UI_fnc_zoneText;
+}] call ULP_fnc_addEventHandler;
+
+["EnteredRadiatedZone", {
+	["<t align='center'>Wszedłeś na <t color='#cc0001'>Radioaktywną strefę</t></t>"] call ULP_UI_fnc_zoneText;
+}] call ULP_fnc_addEventHandler;
+
+["LeftRadiatedZone", {
+	["<t align='center'>Wyszedłeś z <t color='#cc0001'>Radioaktywnej strefy</t></t>"] call ULP_UI_fnc_zoneText;
+}] call ULP_fnc_addEventHandler;
