@@ -30,7 +30,7 @@ Najważniejsze elementy:
 
 Projekt udostępniony na licencji **MIT**.
 
-Framework Altis Life, na którym jest bazowany ten plik należy do autora:
+Framework Altis Life, na którym jest bazowany ten plik należy do:
 https://github.com/Scarso327/AltisLife-Framework
 ## 📜 Informacje dodatkowe
 
